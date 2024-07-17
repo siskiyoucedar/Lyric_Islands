@@ -1,8 +1,8 @@
 # Run 1_placenames before this
 
 ### SPOTIFY API DETAILS
-# id: 5a9b07165651406b88d205798590c304
-# secret: c3cb291b06d1457fbd3446539e4d4722
+your_spotify_id <- your_spotify_id
+your_spotify_secret <- your_spotify_secret
 # https://www.rdocumentation.org/packages/spotifyr/versions/2.2.4
 
 # add borough here once completed

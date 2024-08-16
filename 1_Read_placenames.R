@@ -21,6 +21,10 @@ library(sf)
 
 OS_placenames <- read.csv("_Census_data/IPN_GB_2022.csv")
 
+# Postcode dataset - available here:
+# https://www.doogal.co.uk/london_postcodes
+# postcodes <- st_read("_Spatial_data/postcodes.kml") # don't need for now
+
 # select just the columns for our purposes:
 # basic character name, full name, county name, country name, LAD code, LAD name, region name, latitude & longitude
 
@@ -110,13 +114,15 @@ rm(df, NM)
 London_PN_sf <- df_all |>
   st_as_sf(coords = c("long", "lat"))
 
-tmap_mode("view")
+rm(df_all, London_placenames)
 
-tm_shape(London_LADs) +
-  tm_fill(col = "maroon", alpha = 0.3) +
-  tm_basemap(c(StreetMap = "OpenStreetMap", TopoMap = "OpenTopoMap")) +
-  tm_shape(London_PN_sf) +
-  tm_symbols(size = 0.05, col = "black")
+# tmap_mode("view")
+# 
+# tm_shape(London_LADs) +
+#   tm_fill(col = "maroon", alpha = 0.3) +
+#   tm_basemap(c(StreetMap = "OpenStreetMap", TopoMap = "OpenTopoMap")) +
+#   tm_shape(London_PN_sf) +
+#   tm_symbols(size = 0.05, col = "black")
 
 # still some minor botheration with e.g. "St. Ann's" vs "St Ann's" but otherwise good
 

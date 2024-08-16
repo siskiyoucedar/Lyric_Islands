@@ -1,13 +1,8 @@
 # Run 1_placenames before this
 
-### SPOTIFY API DETAILS
-your_spotify_id <- your_spotify_id
-your_spotify_secret <- your_spotify_secret
-# https://www.rdocumentation.org/packages/spotifyr/versions/2.2.4
+# westminster has no "victoria" because of an error, this may be completed manually
 
-# add borough here once completed
-
-boroughs <- c("Camden", "Islington", "Haringey", "Hackney")
+boroughs <- London_PN_sf$lad21nm |> unique() 
 
 for (borough in boroughs) {
   df <- read.csv(paste0(borough,"_songs.csv")) |> select(-X)
@@ -26,6 +21,16 @@ df <- get(paste0("songs_", borough))
 all_boroughs <- bind_rows(all_boroughs, df) |> unique()
 }
 
+# don't need them anymore so get rid of the individual borough ones
+
+rm_list <- c()
+for (borough in boroughs) {
+  rm_list <- append(rm_list, paste0("songs_", borough))
+}
+
+for (i in rm_list) {
+  rm(list = i)
+}
 
 # summarise data per place name
 borough_mergy <- all_boroughs |>
@@ -36,38 +41,41 @@ borough_mergy <- all_boroughs |>
 
 # merge data with placename point object
 song_PN_sf <- merge(London_PN_sf, borough_mergy, all.x = TRUE)
+rm(borough_mergy)
 
 # get the geometries right! 
 song_PN_sf <- st_set_crs(song_PN_sf, 4326)
 song_PN_sf <- st_transform(song_PN_sf, 27700)
 
-# get a shape of just the boroughs we've done
-borough_shape <- London_LADs |> filter(LAD23NM %in% boroughs) |> select("Name" = LAD23NM)
-
 # get rid of all placenames outside camden
-song_PN_sf <- st_intersection(song_PN_sf, borough_shape)
+song_PN_sf <- st_intersection(song_PN_sf, london_LADs)
 
 # replace NA values with 0
 song_PN_sf <- song_PN_sf |> mutate(
   "Song Count" = replace_na(`Song.Count`, 0)
 )
 
+# bounding box - not currently used
+
+# Inner_LDN <- London_LADs |> filter(LAD23NM %in% boroughs)
+
+# bbox <- st_bbox(Inner_LDN)
+
 tmap_mode("view")
 
+tm_shape(London_LADs, 
+         #bbox = bbox
+         ) +
+  tm_fill(col = "maroon", alpha = 0.1) +
+
 tm_shape(borough_shape) +
-  tm_fill(col = "maroon", alpha = 0.3) +
+  tm_fill(col = "maroon", alpha = 0.5) +
   tm_basemap(c(StreetMap = "OpenStreetMap", TopoMap = "OpenTopoMap")) +
   tm_shape(song_PN_sf) +
-  tm_symbols(size = "Song Count", col = "gold", alpha = 0.8, scale = 4)
+  tm_symbols(size = "Song Count", col = "beige", alpha = 0.8, scale = 3)
 
+# in terms of the problem with things that aren't songs - could it be resolved with max no. of lines? 
+# (no - transparently not...)
 
-# artist_name - for expulsion later...
-artists <- c("H.G. Wells", "Sir Arthur Conan Doyle", "William Shakespeare", 
-             "Virginia Woolf", "Daniel Defoe", "Charles Dickens", 
-             "Oscar Wilde", "Martin Amis", "George Bernard Shaw", 
-             "D.H. Lawrence", "Ben Jonson", "William Hazlitt", 
-             "Arthur Edward Waite", "Jane Austen", "Dorothy L. Sayers", 
-             "Frances Burney", "David Hume", "George Eliot", 
-             "Ford Madox Ford", "Robert Louis Stevenson", "Henry James", 
-             "George Gissing", "Mary Elizabeth Braddon", "Jonathan Swift", 
-             "Henry Fielding")
+rm(df)
+

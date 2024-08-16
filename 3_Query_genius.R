@@ -1,9 +1,10 @@
+library(tidyverse)
 library(rvest)
 library(xml2)
 library(rlang)
 # run after 1_placenames.R
 
-borough_name <- "Hackney" # your borough name goes here - then you can run all the code
+borough_name <- "Boroughs" # your borough name goes here - then you can run all the code
 
 ## PULL LYRICS
 
@@ -69,11 +70,30 @@ options(timeout = max(1000, getOption("timeout")))
 
 borough_df <- get(paste0("df_",borough_name))
 
-locations_4 <- c("Wenlock","Wick Field","Wood Berry","Woodberry Down")
+# postcodes work below
+
+# postcodes_lite <- postcodes |> filter(
+#   !(Name %in% c("WC1A",  "WC1B",  "WC1E",  "WC1H",  "WC1N",  "WC1R",  "WC1V",  "WC1X", "WC2A", "WC2B", "WC2E", "WC2H", "WC2N", "WC2R",
+#                 "EC1A",  "EC1M",  "EC1N",  "EC1P",  "EC1R",  "EC1V",  "EC1Y", "EC2A",  "EC2M",  "EC2N",  "EC2P",  "EC2R",  "EC2V",  "EC2Y",
+#                 "EC3A",  "EC3M",  "EC3N",  "EC3P",  "EC3R",  "EC3V", "EC4A",  "EC4M",  "EC4N",  "EC4P",  "EC4R",  "EC4V",  "EC4Y", 
+#                 "SW1A", "SW1Y", "SW1X", "SW1W", "SW1V", "SW95",
+#                 "W1U", "W1W", "W1T", "W1S", "W1F", "W1H", "W1G", "W1B", "W1A", "W1D", "W1C", "W1J", "W1K", "NW1W", "N1P"))
+# )
+# 
+# locations <- postcodes_lite$Name |> append(c("WC1", "EC1", "SW1", "W1"))
 
 locations <- borough_df$word # change df per borough
+
+#locations <- London_PN_sf$lad21nm |> unique() # change df per borough
+
+# below line is used when there is an error and we have to start from a later point
+
+# locations2 <-tail(locations, -19)
+
 tot_requests <- 0
-for (location in locations_4) {
+
+for (location in locations#2
+     ) {
   # first, create a df of all the results for the location (request #1)
   df <- search_song(search_term = location, 
                     n_results = 149, 

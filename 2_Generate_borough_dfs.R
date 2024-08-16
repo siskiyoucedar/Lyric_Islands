@@ -1,18 +1,25 @@
+library(tidyverse)
+library(tmap)
+library(sf)
+
 ## BOROUGH DFs of PLACE NAMES
 
-#expect many objects in environment!
+# expect many objects in environment!
 
 # load in an entire dictionary with no proper nouns
 
 library(words)
 
+# make sure words is loaded AFTER tidyverse
+
 # make sure the words are capitalised, like in the placenames
 
-words_title <- words |> select(
-  word
-) |> 
+words_title <- words |> 
+  select(
+    word
+  ) |>
   mutate(
-    word = (
+    "word" = (
       str_to_title(
         word
       )

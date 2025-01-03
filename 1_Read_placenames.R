@@ -116,6 +116,8 @@ London_PN_sf <- df_all |>
 
 rm(df_all, London_placenames)
 
+st_write(London_PN_sf, "_Processed_data/_London_Placenames_sf.gpkg")
+
 # tmap_mode("view")
 # 
 # tm_shape(London_LADs) +

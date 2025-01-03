@@ -1,6 +1,18 @@
 # run after 4_Filtering_results.R
 # do not need to run 5_2_Spotify_songs once ran once
 
+library(spotifyr)
+library(collapse)
+
+### SPOTIFY API DETAILS
+your_spotify_id <- your_spotify_id
+your_spotify_secret <- your_spotify_secret
+# https://www.rdocumentation.org/packages/spotifyr/versions/2.2.4
+
+Sys.setenv(SPOTIFY_CLIENT_ID = your_spotify_id)
+Sys.setenv(SPOTIFY_CLIENT_SECRET = your_spotify_secret)
+access_token <- get_spotify_access_token()
+
 song_matches <- read.csv("_all_songs.csv") |>
   select(-X) |>
   tail(-1)
@@ -53,19 +65,67 @@ song_matches_cleaned <- song_matches_cleaner |>
   select(-dupe_name, - first_word_spotify, - first_word_genius, -song_name_length)
 
 rm(song_matches, song_matches_unique, song_matches_cleaner)
+write.csv(song_matches_cleaned, "_unique_songs.csv")
 
 ### TO DO
 
 # genres will come from a query for get_artists (using the specific artists id).
+# spotify links will come from a query for get_track (using the song id).
 
-# get genres for songs
-IDs <- song_matches_cleaned$id
-genres <- c()
+IDs <- song_matches_cleaned$id |> unique()
+artist_IDs <- song_matches_cleaned$artists_id |> unique()
 
+# short forms for testing
+ID_test <- head(IDs, 5)
+artist_test <- head(artist_IDs, 5)
+
+# song id lookup loop:
+
+number <- 0
+song_data <- tibble(id = "", external_url = "", 
+                    api_url = "")
 for(id in IDs){
   data <- get_track(id)
-  # need to know nature of output to finish this piece of code
+  # using the collapse package here to get the list return to play ball
+  data <- unlist2d(data)
+  # bit of a fudge but it works!
+  data2 <- tibble(id = data[24,4], external_url = data[22,4], api_url = data[23,4])
+  # uri is just spotify id plus spotify:track: at the beginning
+  song_data <- bind_rows(song_data, data2)
+  number <- number + 1
+  print(paste0(((number/4686)*100), "% done"))
 }
+
+# write to disk!
+write.csv(song_data, "_Processed_data/song_data.csv")
+rm(ID_test, IDs)
+
+# artist id lookup loop:
+
+number <- 0
+artist_data <- tibble(
+  # genres_1 = "w", genres_2 = "W", genres_3 = "y", genres_4 = "Y", genres_5 = "z",id = "Z", popularity = 0, followers.total = 0
+  )
+for(id in artist_IDs){
+  data <- get_artists(id)
+  data <- data |> unnest_wider(genres, names_sep = "_") |>
+    select(-href, -images, -type, -uri, -external_urls.spotify, -followers.href)
+  artist_data <- bind_rows(artist_data, data)
+  number <- number + 1
+  print(paste0(((number/3311)*100), "% done"))
+}
+artist_data <- artist_data |>
+  select(
+    -genres_6, -genres_7, -genres_8, -genres_9, -genres_10, -genres_11, -genres_12, -genres_13, -genres_14
+  )
+
+# write to disk!
+write.csv(artist_data, "_Processed_data/artist_data.csv")
+rm(artist_test, artist_IDs)
+
+
+### before the final viz you need to find a way to merge back in e.g. st anns, 
+### st. ann's so they match those in the list
 
 
 # summarise data per place name

@@ -11,7 +11,9 @@ your_spotify_secret <- your_spotify_secret
 Sys.setenv(SPOTIFY_CLIENT_ID = your_spotify_id)
 Sys.setenv(SPOTIFY_CLIENT_SECRET = your_spotify_secret)
 access_token <- get_spotify_access_token()
-artist_match_frame <- read.csv("artist_matches.csv")
+
+# bring in the artists
+artist_match_frame <- read.csv("_Processed_data/artist_matches.csv")
 
 # artist_name - for expulsion later...
 artists_exclude <- c("H.G. Wells", "Sir Arthur Conan Doyle", "William Shakespeare", 

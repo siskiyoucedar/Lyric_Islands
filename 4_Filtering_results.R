@@ -5,7 +5,7 @@
 boroughs <- London_PN_sf$lad21nm |> unique() 
 
 for (borough in boroughs) {
-  df <- read.csv(paste0(borough,"_songs.csv")) |> select(-X)
+  df <- read.csv(paste0("_Processed_data/", borough,"_songs.csv")) |> select(-X)
   df_name <- paste0("songs_", borough)
   assign(df_name, df, envir = .GlobalEnv)
 }
@@ -48,7 +48,7 @@ song_PN_sf <- st_set_crs(song_PN_sf, 4326)
 song_PN_sf <- st_transform(song_PN_sf, 27700)
 
 # get rid of all placenames outside camden
-song_PN_sf <- st_intersection(song_PN_sf, london_LADs)
+song_PN_sf <- st_intersection(song_PN_sf, London_LADs)
 
 # replace NA values with 0
 song_PN_sf <- song_PN_sf |> mutate(
@@ -63,12 +63,12 @@ song_PN_sf <- song_PN_sf |> mutate(
 
 tmap_mode("view")
 
-tm_shape(London_LADs, 
+#tm_shape(London_LADs, 
          #bbox = bbox
-         ) +
-  tm_fill(col = "maroon", alpha = 0.1) +
+         #) +
+  #tm_fill(col = "maroon", alpha = 0.1) +
 
-tm_shape(borough_shape) +
+tm_shape(London_LADs) +
   tm_fill(col = "maroon", alpha = 0.5) +
   tm_basemap(c(StreetMap = "OpenStreetMap", TopoMap = "OpenTopoMap")) +
   tm_shape(song_PN_sf) +
